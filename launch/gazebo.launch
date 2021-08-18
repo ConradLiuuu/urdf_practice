@@ -1,0 +1,32 @@
+<launch>
+  <!-- arg setting -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="model" default="$(find urdf_practice)/urdf/practice.urdf.xacro"/>
+  
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+  
+  <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)"/>
+  
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args="-x 0 -y 0 -z 0 -unpause -urdf -model robot -param robot_description" respawn="false" output="screen"/>
+  
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0"/>
+  </node>
+
+  <!--rosparam command="load" file="$(find urdf_practice)/config/joint.yaml" ns="practice"/-->
+  <!--rosparam command="load" file="$(find urdf_practice)/config/head.yaml" ns="practice_joint1"/-->
+  <rosparam command="load" file="$(find urdf_practice)/config/joints.yaml" ns="practice_joints"/>
+  
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="practice_joints"/>
+
+</launch>

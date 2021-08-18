@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="IRB13009">
+  <!-- define world link -->
+  <link name="world"/>
+  
+  <!-- define base link -->
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.022011 -0.00063814 0.12757" rpy="0 0 0"/>
+      <mass value="13.179"/>
+      <inertia ixx="0.11221" ixy="-0.00070945" ixz="-0.0034124" iyy="0.14132" iyz="0.00011866" izz="0.11734"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://IRB13009/meshes/base_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://IRB13009/meshes/base_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- define joint world to base link -->
+  <joint name="fixed" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+
+  <!-- define link1 -->
+  <link name="Link1">
+    <inertial>
+      <origin xyz="0.039272 0.0012718 0.14588" rpy="0 0 0"/>
+      <mass value="16.333"/>
+      <inertia ixx="0.33225" ixy="-0.0018868" ixz="-0.073712" iyy="0.25386" iyz="-0.0019972" izz="0.29757"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://IRB13009/meshes/Link1.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://IRB13009/meshes/Link1.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- define base link to link1 -->
+  <joint name="joint_1" type="revolute">
+    <origin xyz="-0.001358 -0.0020449 0.254" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="Link1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="0" velocity="3.14"/>
+  </joint>
+
+  <!-- define transmission between base link and Link1 -->
+  <transmission name="joint1_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$joint1_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="joint_1">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+  </gazebo>
+
+</robot>

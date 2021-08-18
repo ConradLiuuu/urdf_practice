@@ -1,0 +1,317 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="practice">
+
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+
+  <material name="white">
+    <color rgba="1 1 1 1"/> <!-- red green blue alpha-->
+  </material>
+
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="green">
+    <color rgba="0 0.8 0 1"/>
+  </material>
+
+  <xacro:property name="width1" value="0.2"/>
+  <xacro:property name="len1" value="0.09"/>
+  <xacro:property name="len2" value="0.8"/>
+  <xacro:property name="len3" value="0.6"/>
+  <!--xacro:property name="mass" value="1" /-->
+  <xacro:property name="pi" value="3.14159"/>
+
+  <xacro:macro name="default_inertial" params="mass">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia ixx="1.0" ixy="0" ixz="0" iyy="1.0" iyz="0" izz="1.0"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="base_inertial" params="mass">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </xacro:macro>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="${len1/3} ${len1*2} ${len1*3}"/>
+      </geometry>
+      <material name="black"/>
+      <origin xyz="${len1/3} 0 ${len1/2}"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${len1/3} ${len1*2} ${len1*2}"/>
+      </geometry>
+    </collision>
+    <xacro:base_inertial mass="10000"/>
+  </link>
+
+  <joint name="joint00" type="fixed">
+    <parent link="base_link"/>
+    <child link="link00"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="link00"> <!-- same as frame name in rviz -->
+    <visual>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+      <material name="black"/>
+      <origin xyz="${len1/3} 0 ${len1*2}" rpy="0 ${pi/2} 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+    </collision>
+    <xacro:base_inertial mass="100"/>
+  </link>
+
+  <joint name="joint0" type="fixed">
+    <parent link="link00"/>
+    <child link="link0"/>
+    <origin xyz="0 0 ${len1}"/>
+  </joint>
+
+  <link name="link0"> <!-- same as frame name in rviz -->
+    <visual>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+      <material name="blue"/>
+      <origin xyz="0 0 ${len1}" rpy="0 ${pi/2} 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="0.5"/>
+  </link>
+  
+  <link name="link1">
+    <visual>
+      <geometry>
+        <box size="${len1*2} 0.5 ${len1/3}"/>
+      </geometry>
+      <origin xyz="0 0.25 0" rpy="0 ${pi/2} 0"/>
+      <material name="green"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${len1*2} 0.5 ${len1/3}"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="1.0"/>
+  </link>
+
+  <joint name="joint1" type="continuous">
+    <parent link="link0"/>
+    <child link="link1"/>
+    <origin xyz="0 0 ${len1}"/>
+    <!--axis xyz="1 0 0"/-->
+    <!--limit effort="30" velocity="1.0"/-->
+  </joint>
+
+  <transmission name="joint1_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$joint1_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="joint1">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+  
+  
+  <link name="link2">
+    <visual>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+      <material name="blue"/>
+      <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="0.5"/>
+  </link>
+  
+  <joint name="joint2" type="continuous">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0 0.5 0"/>
+  </joint>
+
+  <transmission name="joint2_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$joint2_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="joint2">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+  
+  <link name="link3">
+    <visual>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+      <material name="green"/>
+      <origin xyz="-${len1/3} 0 ${len1}" rpy="0 ${pi/2} 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="0.5"/>
+  </link>
+
+  <joint name="joint3" type="fixed">
+    <parent link="link2"/>
+    <child link="link3"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="link4">
+    <visual>
+      <geometry>
+        <box size="${len1/3} ${len1*2} 0.5"/>
+      </geometry>
+      <material name="green"/>
+      <origin xyz="-${len1/3} 0 ${len1*4}" rpy="0 0 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${len1/3} ${len1*2} 0.5"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="1.0"/>
+  </link>
+
+  <joint name="joint4" type="fixed">
+    <parent link="link3"/>
+    <child link="link4"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="link5">
+    <visual>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+      <material name="blue"/>
+      <origin xyz="-${len1/3} 0 0" rpy="0 ${pi/2} 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="0.5"/>
+  </link>
+
+  <joint name="joint5" type="revolute">
+    <parent link="link4"/>
+    <child link="link5"/>
+    <origin xyz="0 0 ${len1*7}"/>
+    <limit lower="-3.14" upper="3.14" effort="0" velocity="3.14"/>
+  </joint>
+
+  <transmission name="joint5_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="$joint5_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="joint5">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+
+  <link name="link6">
+    <visual>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+      <material name="green"/>
+      <origin xyz="-${len1/3*2} 0 0" rpy="0 ${pi/2} 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="${len1/3*2}" radius="${len1}"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="0.5"/>
+  </link>
+
+  <joint name="joint6" type="fixed">
+    <parent link="link5"/>
+    <child link="link6"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="link7">
+    <visual>
+      <geometry>
+        <box size="${len1*2} 0.5 ${len1/3}"/>
+      </geometry>
+      <origin xyz="-${len1/3*2} 0.25 0" rpy="0 ${pi/2} 0"/>
+      <material name="green"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${len1*2} 0.5 ${len1/3}"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="1.0"/>
+  </link>
+
+  <joint name="joint7" type="fixed">
+    <parent link="link6"/>
+    <child link="link7"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="link8">
+    <visual>
+      <geometry>
+        <cylinder length="${len1/3}" radius="${len1}"/>
+      </geometry>
+      <material name="green"/>
+      <origin xyz="-${len1/3*2} 0 0" rpy="0 ${pi/2} 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="${len1/3*2}" radius="${len1}"/>
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="0.5"/>
+  </link>
+
+  <joint name="joint8" type="fixed">
+    <parent link="link7"/>
+    <child link="link8"/>
+    <origin xyz="0 0.5 0"/>
+  </joint>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+  </gazebo>
+  
+</robot>

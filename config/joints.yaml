@@ -1,0 +1,14 @@
+type: "position_controllers/JointGroupPositionController"
+joints:
+  - joint1
+  - joint2
+  - joint5
+
+#type: joint_state_controller/JointStateController
+#joints:
+#  - joint_1
+#  - joint_2
+#  - joint_3
+#  - joint_4
+#  - joint_5
+#  - joint_6
